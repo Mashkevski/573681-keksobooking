@@ -168,8 +168,8 @@ var renderMapCard = function (obj) {
 };
 
 var mapPinMain = document.querySelector('.map__pin--main');
-var addForm = document.querySelector('.ad-form')
-var fieldsets = addForm.querySelectorAll('fieldset')
+var addForm = document.querySelector('.ad-form');
+var fieldsets = addForm.querySelectorAll('fieldset');
 var addressInput = document.querySelector('#address');
 var mapFiltersContainer = map.querySelector('map__filters-container');
 
@@ -183,8 +183,8 @@ var setInactiveState = function () {
 };
 
 var getPinAddress = function (elem, width, height) {
-  var locationX = parseInt(elem.style.left) + Math.floor(width / 2);
-  var locationY = parseInt(elem.style.top) + height;
+  var locationX = parseInt(elem.style.left, 10) + Math.floor(width / 2);
+  var locationY = parseInt(elem.style.top, 10) + height;
   return locationX + ', ' + locationY;
 };
 
@@ -202,11 +202,10 @@ var addListener = function (element, index) {
     var mapCardPopup = map.querySelector('.map__card');
     if (mapCardPopup) {
       map.replaceChild(renderMapCard(OFFERS[index]), mapCardPopup);
-    }
-    else {
+    } else {
       map.insertBefore(renderMapCard(OFFERS[index]), mapFiltersContainer);
     }
-  })
+  });
 };
 
 var renderOfferList = function () {
@@ -222,7 +221,6 @@ var renderOfferList = function () {
 };
 
 map.addEventListener('click', function (evt) {
-  console.log(evt.target);
   if (evt.target.classList.value === 'popup__close') {
     var mapCardPopup = map.querySelector('.map__card');
     map.removeChild(mapCardPopup);
@@ -233,7 +231,7 @@ mapPinMain.addEventListener('mouseup', function () {
   setActiveState();
   var mapPins = document.querySelectorAll('.map__pin');
   for (var i = 0; i < mapPins.length; i++) {
-    mapPins[i].classList.remove('visually-hidden')
+    mapPins[i].classList.remove('visually-hidden');
   }
   addressInput.value = getPinAddress(mapPinMain, PIN_MAIN_WIDTH, PIN_MAIN_HEIGHT);
 });
