@@ -1,5 +1,6 @@
 'use strict';
 
+var ESC_KEYCODE = 27;
 var NUMBER_OFFERS = 8;
 var TITLES = [
   'Большая уютная квартира',
@@ -53,10 +54,11 @@ var getRandomNumber = function (min, max) {
 };
 
 var getMixedArray = function (array) {
+  var fullCopyArray = array.slice();
   var compare = function () {
     return Math.random() - 0.5;
   };
-  return array.sort(compare);
+  return fullCopyArray.sort(compare);
 };
 
 var getArrayOfRandomLength = function (array) {
@@ -69,6 +71,7 @@ var getOffer = function (index) {
   var avatarIndex = index + 1;
   var offer =
       {
+        id: index,
         author: {
           avatar: 'img/avatars/user0' + avatarIndex + '.png'
         },
@@ -101,6 +104,7 @@ var getOffers = function () {
 
 var renderMapPin = function (obj) {
   var mapPinElement = mapPinTemplate.cloneNode(true);
+  mapPinElement.id = obj.id;
   mapPinElement.style.left = obj.location.x - PIN_WIDTH / 2 + 'px';
   mapPinElement.style.top = obj.location.y - PIN_HEIGHT + 'px';
   mapPinElement.querySelector('img').src = obj.author.avatar;
@@ -178,8 +182,13 @@ var setInactiveState = function () {
   addForm.classList.add('ad-form--disabled');
   for (var i = 0; i < fieldsets.length; i++) {
     fieldsets[i].disabled = 'false';
-
   }
+
+  mapPinMain.addEventListener('mouseup', onPinMainClick);
+};
+
+var onPinMainClick = function () {
+  setActiveState();
 };
 
 var getPinAddress = function (elem, width, height) {
@@ -191,51 +200,64 @@ var getPinAddress = function (elem, width, height) {
 var setActiveState = function () {
   map.classList.remove('map--faded');
   addForm.classList.remove('ad-form--disabled');
-
-  for (var i = 0; i < fieldsets.length; i++) {
-    fieldsets[i].removeAttribute('disabled');
+  for (var fieldsetsIndex = 0; fieldsetsIndex < fieldsets.length; fieldsetsIndex++) {
+    fieldsets[fieldsetsIndex].removeAttribute('disabled');
   }
+
+  mapPinMain.removeEventListener('mouseup', onPinMainClick);
 };
 
-var addListener = function (element, index) {
-  element.addEventListener('click', function () {
-    var mapCardPopup = map.querySelector('.map__card');
-    if (mapCardPopup) {
-      map.replaceChild(renderMapCard(OFFERS[index]), mapCardPopup);
-    } else {
-      map.insertBefore(renderMapCard(OFFERS[index]), mapFiltersContainer);
-    }
+var addListener = function (pinElement) {
+  pinElement.addEventListener('click', function () {
+    openPopup(pinElement.id);
   });
 };
 
-var renderOfferList = function () {
+var renderOffers = function () {
   var fragment = document.createDocumentFragment();
-  getOffers();
   for (var i = 0; i < OFFERS.length; i++) {
     var pinElement = renderMapPin(OFFERS[i]);
-    pinElement.classList.add('visually-hidden');
-    addListener(pinElement, i);
+    addListener(pinElement);
     fragment.appendChild(pinElement);
   }
   offerListElement.appendChild(fragment);
 };
 
-map.addEventListener('click', function (evt) {
-  if (evt.target.classList.value === 'popup__close') {
-    var mapCardPopup = map.querySelector('.map__card');
-    map.removeChild(mapCardPopup);
+var onPopupEscPress = function (evt) {
+  if (evt.keyCode === ESC_KEYCODE) {
+    closePopup();
   }
-});
+};
+
+var closePopup = function () {
+  var mapCardPopup = map.querySelector('.map__card');
+  map.removeChild(mapCardPopup);
+  document.removeEventListener('keydown', onPopupEscPress);
+};
+
+var openPopup = function (id) {
+  var mapCardPopup = map.querySelector('.map__card');
+  if (mapCardPopup) {
+    map.replaceChild(renderMapCard(OFFERS[id]), mapCardPopup);
+  } else {
+    map.insertBefore(renderMapCard(OFFERS[id]), mapFiltersContainer);
+  }
+
+  var popupClose = map.querySelector('.popup__close');
+  popupClose.addEventListener('click', function () {
+    closePopup();
+  });
+  document.addEventListener('keydown', onPopupEscPress);
+};
 
 mapPinMain.addEventListener('mouseup', function () {
-  setActiveState();
-  var mapPins = document.querySelectorAll('.map__pin');
-  for (var i = 0; i < mapPins.length; i++) {
-    mapPins[i].classList.remove('visually-hidden');
-  }
+  var address = addressInput.value;
   addressInput.value = getPinAddress(mapPinMain, PIN_MAIN_WIDTH, PIN_MAIN_HEIGHT);
+  if (address !== addressInput.value) {
+    getOffers();
+    renderOffers();
+  }
 });
 
 setInactiveState();
 addressInput.value = getPinAddress(mapPinMain, PIN_WIDTH, PIN_MAIN_DEFAULT_HEIGHT);
-renderOfferList();
