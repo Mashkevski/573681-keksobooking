@@ -70,29 +70,29 @@ var getOffer = function (index) {
   var LOCATION_Y = getRandomNumber(MIN_LOCATION_Y, MAX_LOCATION_Y);
   var avatarIndex = index + 1;
   var offer =
-      {
-        id: index,
-        author: {
-          avatar: 'img/avatars/user0' + avatarIndex + '.png'
-        },
-        offer: {
-          title: TITLES[index],
-          address: LOCATION_X + ', ' + LOCATION_Y,
-          price: getRandomNumber(MIN_PRICE, MAX_PRICE),
-          type: getRandomArrayElement(TYPES),
-          rooms: getRandomNumber(MIN_ROOMS, MAX_ROOMS),
-          guests: getRandomNumber(MIN_QUESTS, MAX_QUESTS),
-          checkin: getRandomArrayElement(CHECKIN_TIMES),
-          checkout: getRandomArrayElement(CHECKOUT_TIMES),
-          features: getArrayOfRandomLength(FEATURES),
-          description: '',
-          photos: getMixedArray(PHOTOS)
-        },
-        location: {
-          x: LOCATION_X,
-          y: LOCATION_Y
-        },
-      };
+    {
+      id: index,
+      author: {
+        avatar: 'img/avatars/user0' + avatarIndex + '.png'
+      },
+      offer: {
+        title: TITLES[index],
+        address: LOCATION_X + ', ' + LOCATION_Y,
+        price: getRandomNumber(MIN_PRICE, MAX_PRICE),
+        type: getRandomArrayElement(TYPES),
+        rooms: getRandomNumber(MIN_ROOMS, MAX_ROOMS),
+        guests: getRandomNumber(MIN_QUESTS, MAX_QUESTS),
+        checkin: getRandomArrayElement(CHECKIN_TIMES),
+        checkout: getRandomArrayElement(CHECKOUT_TIMES),
+        features: getArrayOfRandomLength(FEATURES),
+        description: '',
+        photos: getMixedArray(PHOTOS)
+      },
+      location: {
+        x: LOCATION_X,
+        y: LOCATION_Y
+      },
+    };
   return offer;
 };
 
@@ -181,7 +181,7 @@ var setInactiveState = function () {
   map.classList.add('map--faded');
   addForm.classList.add('ad-form--disabled');
   for (var i = 0; i < fieldsets.length; i++) {
-    fieldsets[i].disabled = 'false';
+    fieldsets[i].disabled = true;
   }
 
   mapPinMain.addEventListener('mouseup', onPinMainClick);
@@ -201,7 +201,7 @@ var setActiveState = function () {
   map.classList.remove('map--faded');
   addForm.classList.remove('ad-form--disabled');
   for (var fieldsetsIndex = 0; fieldsetsIndex < fieldsets.length; fieldsetsIndex++) {
-    fieldsets[fieldsetsIndex].removeAttribute('disabled');
+    fieldsets[fieldsetsIndex].disabled = false;
   }
 
   mapPinMain.removeEventListener('mouseup', onPinMainClick);
