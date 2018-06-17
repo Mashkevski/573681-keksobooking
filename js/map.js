@@ -39,7 +39,7 @@ var PIN_MAIN_WIDTH = 65;
 var OFFERS = [];
 
 var map = document.querySelector('.map');
-var offerListElement = document.querySelector('.map__pins');
+var mapPins = document.querySelector('.map__pins');
 var mapPinTemplate = document.querySelector('template')
   .content.querySelector('.map__pin');
 var mapCardTemplate = document.querySelector('template')
@@ -97,6 +97,7 @@ var getOffer = function (index) {
 };
 
 var getOffers = function () {
+  OFFERS.length = 0;
   for (var i = 0; i < NUMBER_OFFERS; i++) {
     OFFERS.push(getOffer(i));
   }
@@ -173,17 +174,23 @@ var renderMapCard = function (obj) {
 
 var mapPinMain = document.querySelector('.map__pin--main');
 var addForm = document.querySelector('.ad-form');
-var fieldsets = addForm.querySelectorAll('fieldset');
+var fieldsets = document.querySelectorAll('fieldset');
 var addressInput = document.querySelector('#address');
 var mapFiltersContainer = map.querySelector('map__filters-container');
+var selects = map.querySelectorAll('select');
 
 var setInactiveState = function () {
+  while (mapPins.lastChild.className === 'map__pin') {
+    mapPins.removeChild(mapPins.lastChild);
+  }
   map.classList.add('map--faded');
   addForm.classList.add('ad-form--disabled');
-  for (var i = 0; i < fieldsets.length; i++) {
-    fieldsets[i].disabled = true;
+  for (var fieldsetsIndex = 0; fieldsetsIndex < fieldsets.length; fieldsetsIndex++) {
+    fieldsets[fieldsetsIndex].disabled = true;
   }
-
+  for (var selectsIndex = 0; selectsIndex < selects.length; selectsIndex++) {
+    selects[selectsIndex].disabled = true;
+  }
   mapPinMain.addEventListener('mouseup', onPinMainClick);
 };
 
@@ -203,7 +210,9 @@ var setActiveState = function () {
   for (var fieldsetsIndex = 0; fieldsetsIndex < fieldsets.length; fieldsetsIndex++) {
     fieldsets[fieldsetsIndex].disabled = false;
   }
-
+  for (var selectsIndex = 0; selectsIndex < selects.length; selectsIndex++) {
+    selects[selectsIndex].disabled = false;
+  }
   mapPinMain.removeEventListener('mouseup', onPinMainClick);
 };
 
@@ -220,7 +229,7 @@ var renderOffers = function () {
     addListener(pinElement);
     fragment.appendChild(pinElement);
   }
-  offerListElement.appendChild(fragment);
+  mapPins.appendChild(fragment);
 };
 
 var onPopupEscPress = function (evt) {
@@ -257,6 +266,10 @@ mapPinMain.addEventListener('mouseup', function () {
     getOffers();
     renderOffers();
   }
+});
+
+addForm.addEventListener('reset', function () {
+  setInactiveState();
 });
 
 setInactiveState();
