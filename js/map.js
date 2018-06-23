@@ -27,17 +27,19 @@ var PHOTOS = [
   'http://o0.github.io/assets/images/tokyo/hotel2.jpg',
   'http://o0.github.io/assets/images/tokyo/hotel3.jpg'
 ];
-var MIN_LOCATION_X = 300;
-var MAX_LOCATION_X = 900;
+var MIN_LOCATION_OFFERS_X = 300;
+var MAX_LOCATION_OFFERS_X = 900;
+var MIN_LOCATION_X = 0;
+var MAX_LOCATION_X = 1200;
 var MIN_LOCATION_Y = 130;
 var MAX_LOCATION_Y = 630;
 var PIN_HEIGHT = 70;
 var PIN_WIDTH = 50;
 var PIN_MAIN_DEFAULT_HEIGHT = 33;
-var PIN_MAIN_HEIGHT = 87;
+var PIN_MAIN_HEIGHT = 80;
 var PIN_MAIN_WIDTH = 65;
+var MAP_PIN_DEFAULT_STYLE = 'left: 570px; top: 375px';
 var OFFERS = [];
-
 var map = document.querySelector('.map');
 var mapPins = document.querySelector('.map__pins');
 var mapPinTemplate = document.querySelector('template')
@@ -66,7 +68,7 @@ var getArrayOfRandomLength = function (array) {
 };
 
 var getOffer = function (index) {
-  var LOCATION_X = getRandomNumber(MIN_LOCATION_X, MAX_LOCATION_X);
+  var LOCATION_X = getRandomNumber(MIN_LOCATION_OFFERS_X, MAX_LOCATION_OFFERS_X);
   var LOCATION_Y = getRandomNumber(MIN_LOCATION_Y, MAX_LOCATION_Y);
   var avatarIndex = index + 1;
   var offer =
@@ -179,10 +181,14 @@ var addressInput = document.querySelector('#address');
 var mapFiltersContainer = map.querySelector('map__filters-container');
 var selects = map.querySelectorAll('select');
 
-var setInactiveState = function () {
+var removeMapPins = function () {
   while (mapPins.lastChild.className === 'map__pin') {
     mapPins.removeChild(mapPins.lastChild);
   }
+};
+
+var setInactiveState = function () {
+  removeMapPins();
   map.classList.add('map--faded');
   addForm.classList.add('ad-form--disabled');
   for (var fieldsetsIndex = 0; fieldsetsIndex < fieldsets.length; fieldsetsIndex++) {
@@ -191,11 +197,6 @@ var setInactiveState = function () {
   for (var selectsIndex = 0; selectsIndex < selects.length; selectsIndex++) {
     selects[selectsIndex].disabled = true;
   }
-  mapPinMain.addEventListener('mouseup', onPinMainClick);
-};
-
-var onPinMainClick = function () {
-  setActiveState();
 };
 
 var getPinAddress = function (elem, width, height) {
@@ -213,7 +214,7 @@ var setActiveState = function () {
   for (var selectsIndex = 0; selectsIndex < selects.length; selectsIndex++) {
     selects[selectsIndex].disabled = false;
   }
-  mapPinMain.removeEventListener('mouseup', onPinMainClick);
+  addressInput.value = getPinAddress(mapPinMain, PIN_MAIN_WIDTH, PIN_MAIN_HEIGHT);
 };
 
 var addListener = function (pinElement) {
@@ -222,7 +223,7 @@ var addListener = function (pinElement) {
   });
 };
 
-var renderOffers = function () {
+var renderMapPins = function () {
   var fragment = document.createDocumentFragment();
   for (var i = 0; i < OFFERS.length; i++) {
     var pinElement = renderMapPin(OFFERS[i]);
@@ -259,21 +260,13 @@ var openPopup = function (id) {
   document.addEventListener('keydown', onPopupEscPress);
 };
 
-mapPinMain.addEventListener('mouseup', function () {
-  var address = addressInput.value;
-  addressInput.value = getPinAddress(mapPinMain, PIN_MAIN_WIDTH, PIN_MAIN_HEIGHT);
-  if (address !== addressInput.value) {
-    getOffers();
-    renderOffers();
-  }
-});
-
 var addFormReset = document.querySelector('.ad-form__reset');
 var mapFilters = document.querySelector('.map__filters');
 addFormReset.addEventListener('click', function () {
   mapFilters.reset();
   addForm.reset();
   setInactiveState();
+  mapPinMain.style = MAP_PIN_DEFAULT_STYLE;
   addressInput.value = getPinAddress(mapPinMain, PIN_WIDTH, PIN_MAIN_DEFAULT_HEIGHT);
 });
 
@@ -343,4 +336,63 @@ capacitySelect.addEventListener('change', function () {
 });
 
 addressInput.value = getPinAddress(mapPinMain, PIN_WIDTH, PIN_MAIN_DEFAULT_HEIGHT);
-setInactiveState();
+
+mapPinMain.addEventListener('mousedown', function (evt) {
+  evt.preventDefault();
+
+  var startCoords = {
+    x: evt.clientX,
+    y: evt.clientY
+  };
+
+  var onMouseMove = function (moveEvt) {
+    moveEvt.preventDefault();
+
+    var shift = {
+      x: startCoords.x - moveEvt.clientX,
+      y: startCoords.y - moveEvt.clientY
+    };
+    startCoords = {
+      x: moveEvt.clientX,
+      y: moveEvt.clientY
+    };
+    var positionLeft = mapPinMain.offsetLeft - shift.x;
+    var positionTop = mapPinMain.offsetTop - shift.y;
+    var addressTopValue = positionTop + PIN_MAIN_HEIGHT;
+    var addressLeftValue = positionLeft + PIN_MAIN_WIDTH / 2;
+
+    if (addressTopValue > MIN_LOCATION_Y) {
+      if (addressTopValue < MAX_LOCATION_Y) {
+        mapPinMain.style.top = positionTop + 'px';
+      }
+    }
+
+    if (positionLeft > MIN_LOCATION_X) {
+      if ((positionLeft + PIN_MAIN_WIDTH) < MAX_LOCATION_X) {
+        mapPinMain.style.left = positionLeft + 'px';
+      }
+    }
+
+    addressInput.value = addressLeftValue.toFixed() + ', ' + addressTopValue;
+  };
+
+  var onMouseUp = function (evtUp) {
+    evtUp.preventDefault();
+
+    var address = addressInput.value;
+
+    addressInput.value = getPinAddress(mapPinMain, PIN_MAIN_WIDTH, PIN_MAIN_HEIGHT);
+    if (address !== addressInput.value) {
+      getOffers();
+      setActiveState();
+      removeMapPins();
+      renderMapPins();
+    }
+
+    document.removeEventListener('mousemove', onMouseMove);
+    document.removeEventListener('mouseup', onMouseUp);
+  };
+
+  document.addEventListener('mousemove', onMouseMove);
+  document.addEventListener('mouseup', onMouseUp);
+});
