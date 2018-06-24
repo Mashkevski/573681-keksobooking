@@ -189,6 +189,7 @@ var removeMapPins = function () {
 
 var setInactiveState = function () {
   removeMapPins();
+  closePopup();
   map.classList.add('map--faded');
   addForm.classList.add('ad-form--disabled');
   for (var fieldsetsIndex = 0; fieldsetsIndex < fieldsets.length; fieldsetsIndex++) {
@@ -241,8 +242,10 @@ var onPopupEscPress = function (evt) {
 
 var closePopup = function () {
   var mapCardPopup = map.querySelector('.map__card');
-  map.removeChild(mapCardPopup);
-  document.removeEventListener('keydown', onPopupEscPress);
+  if (mapCardPopup) {
+    map.removeChild(mapCardPopup);
+    document.removeEventListener('keydown', onPopupEscPress);
+  }
 };
 
 var openPopup = function (id) {
