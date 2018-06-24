@@ -200,8 +200,8 @@ var setInactiveState = function () {
 };
 
 var getPinAddress = function (elem, width, height) {
-  var locationX = parseInt(elem.style.left, 10) + Math.floor(width / 2);
-  var locationY = parseInt(elem.style.top, 10) + height;
+  var locationX = elem.offsetLeft + Math.floor(width / 2);
+  var locationY = elem.offsetTop + height;
   return locationX + ', ' + locationY;
 };
 
