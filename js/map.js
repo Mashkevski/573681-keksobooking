@@ -218,7 +218,8 @@ var setActiveState = function () {
   addressInput.value = getPinAddress(mapPinMain, PIN_MAIN_WIDTH, PIN_MAIN_HEIGHT);
 };
 
-var addListener = function (pinElement) {
+// TODO rename to addPinClickHandler or addClickEventHandler
+var addPinClickHandler = function (pinElement) {
   pinElement.addEventListener('click', function () {
     openPopup(pinElement.id);
   });
@@ -228,7 +229,7 @@ var renderMapPins = function () {
   var fragment = document.createDocumentFragment();
   for (var i = 0; i < OFFERS.length; i++) {
     var pinElement = renderMapPin(OFFERS[i]);
-    addListener(pinElement);
+    addPinClickHandler(pinElement);
     fragment.appendChild(pinElement);
   }
   mapPins.appendChild(fragment);
@@ -340,61 +341,59 @@ capacitySelect.addEventListener('change', function () {
 
 addressInput.value = getPinAddress(mapPinMain, PIN_WIDTH, PIN_MAIN_DEFAULT_HEIGHT);
 
-mapPinMain.addEventListener('mousedown', function (evt) {
-  evt.preventDefault();
 
-  var startCoords = {
-    x: evt.clientX,
-    y: evt.clientY
+var startCoords = {x: 0, y: 0};
+
+var onMouseMove = function (moveEvt) {
+  moveEvt.preventDefault();
+
+  var shift = {
+    x: startCoords.x - moveEvt.clientX,
+    y: startCoords.y - moveEvt.clientY
   };
 
-  var onMouseMove = function (moveEvt) {
-    moveEvt.preventDefault();
+  startCoords.x = moveEvt.clientX;
+  startCoords.y = moveEvt.clientY;
 
-    var shift = {
-      x: startCoords.x - moveEvt.clientX,
-      y: startCoords.y - moveEvt.clientY
-    };
-    startCoords = {
-      x: moveEvt.clientX,
-      y: moveEvt.clientY
-    };
-    var positionLeft = mapPinMain.offsetLeft - shift.x;
-    var positionTop = mapPinMain.offsetTop - shift.y;
-    var addressTopValue = positionTop + PIN_MAIN_HEIGHT;
-    var addressLeftValue = positionLeft + PIN_MAIN_WIDTH / 2;
+  var positionLeft = mapPinMain.offsetLeft - shift.x;
+  var positionTop = mapPinMain.offsetTop - shift.y;
+  var addressTopValue = positionTop + PIN_MAIN_HEIGHT;
+  var addressLeftValue = positionLeft + PIN_MAIN_WIDTH / 2;
 
-    if (addressTopValue > MIN_LOCATION_Y) {
-      if (addressTopValue < MAX_LOCATION_Y) {
-        mapPinMain.style.top = positionTop + 'px';
-      }
-    }
+  if (addressTopValue > MIN_LOCATION_Y && addressTopValue < MAX_LOCATION_Y) {
+    mapPinMain.style.top = positionTop + 'px';
 
-    if (positionLeft > MIN_LOCATION_X) {
-      if ((positionLeft + PIN_MAIN_WIDTH) < MAX_LOCATION_X) {
-        mapPinMain.style.left = positionLeft + 'px';
-      }
+    if (positionLeft > MIN_LOCATION_X && positionLeft + PIN_MAIN_WIDTH < MAX_LOCATION_X) {
+      mapPinMain.style.left = positionLeft + 'px';
     }
 
     addressInput.value = addressLeftValue.toFixed() + ', ' + addressTopValue;
-  };
+  }
+};
 
-  var onMouseUp = function (evtUp) {
-    evtUp.preventDefault();
+var onMouseUp = function (evtUp) {
+  evtUp.preventDefault();
 
-    var address = addressInput.value;
+  var address = addressInput.value;
 
-    addressInput.value = getPinAddress(mapPinMain, PIN_MAIN_WIDTH, PIN_MAIN_HEIGHT);
-    if (address !== addressInput.value) {
-      getOffers();
-      setActiveState();
-      removeMapPins();
-      renderMapPins();
-    }
+  addressInput.value = getPinAddress(mapPinMain, PIN_MAIN_WIDTH, PIN_MAIN_HEIGHT);
+  if (address !== addressInput.value) {
+    getOffers();
+    setActiveState();
+    removeMapPins();
+    renderMapPins();
+  }
 
-    document.removeEventListener('mousemove', onMouseMove);
-    document.removeEventListener('mouseup', onMouseUp);
-  };
+  document.removeEventListener('mousemove', onMouseMove);
+  document.removeEventListener('mouseup', onMouseUp);
+};
+
+mapPinMain.addEventListener('mousedown', function (evt) {
+
+  evt.preventDefault();
+
+  startCoords.x = evt.clientX;
+  startCoords.y = evt.clientY;
 
   document.addEventListener('mousemove', onMouseMove);
   document.addEventListener('mouseup', onMouseUp);
