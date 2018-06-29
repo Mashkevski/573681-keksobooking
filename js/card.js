@@ -3,10 +3,10 @@
 (function () {
   var mapCardTemplate = document.querySelector('template')
   .content.querySelector('.map__card');
+  var photoListFragment = document.createDocumentFragment();
+  var photoTemplate = mapCardTemplate.querySelector('.popup__photo');
 
   var getPhotoList = function (array) {
-    var photoListFragment = document.createDocumentFragment();
-    var photoTemplate = mapCardTemplate.querySelector('.popup__photo');
     for (var i = 0; i < array.length; i++) {
       var photoElement = photoTemplate.cloneNode();
       photoElement.src = array[i];

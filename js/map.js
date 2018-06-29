@@ -19,13 +19,15 @@
   var selects = map.querySelectorAll('select');
   var mapPins = document.querySelector('.map__pins');
   var addForm = document.querySelector('.ad-form');
+  var mapPinTemplate = document.querySelector('template')
+    .content.querySelector('.map__pin');
+  var fragment = document.createDocumentFragment();
 
   var removeMapPins = function () {
     while (mapPins.lastChild.className === 'map__pin') {
       mapPins.removeChild(mapPins.lastChild);
     }
   };
-
 
   var getPinAddress = function (elem, width, height) {
     var locationX = elem.offsetLeft + Math.floor(width / 2);
@@ -54,7 +56,6 @@
     } else {
       map.insertBefore(window.renderMapCard(OFFERS[id]), mapFiltersContainer);
     }
-
     var popupClose = map.querySelector('.popup__close');
     popupClose.addEventListener('click', function () {
       closePopup();
@@ -69,9 +70,8 @@
   };
 
   var renderMapPins = function (offer) {
-    var fragment = document.createDocumentFragment();
     for (var i = 0; i < offer.length; i++) {
-      var pinElement = window.renderMapPin(offer[i]);
+      var pinElement = window.renderMapPin(offer[i], mapPinTemplate);
       addPinClickHandler(pinElement);
       fragment.appendChild(pinElement);
     }
