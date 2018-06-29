@@ -33,8 +33,8 @@
     return locationX + ', ' + locationY;
   };
 
-  var onPopupEscPress = function (evt) {
-    if (evt.keyCode === ESC_KEYCODE) {
+  var onPopupEscPress = function (e) {
+    if (e.keyCode === ESC_KEYCODE) {
       closePopup();
     }
   };
@@ -109,16 +109,16 @@
 
   var startCoords = {x: 0, y: 0};
 
-  var onMouseMove = function (moveEvt) {
-    moveEvt.preventDefault();
+  var onMouseMove = function (e) {
+    e.preventDefault();
 
     var shift = {
-      x: startCoords.x - moveEvt.clientX,
-      y: startCoords.y - moveEvt.clientY
+      x: startCoords.x - e.clientX,
+      y: startCoords.y - e.clientY
     };
 
-    startCoords.x = moveEvt.clientX;
-    startCoords.y = moveEvt.clientY;
+    startCoords.x = e.clientX;
+    startCoords.y = e.clientY;
 
     var positionLeft = mapPinMain.offsetLeft - shift.x;
     var positionTop = mapPinMain.offsetTop - shift.y;
@@ -127,17 +127,17 @@
 
     if (addressTopValue > MIN_LOCATION_Y && addressTopValue < MAX_LOCATION_Y) {
       mapPinMain.style.top = positionTop + 'px';
-
-      if (positionLeft > MIN_LOCATION_X && positionLeft + PIN_MAIN_WIDTH < MAX_LOCATION_X) {
-        mapPinMain.style.left = positionLeft + 'px';
-      }
-
-      addressInput.value = addressLeftValue.toFixed() + ', ' + addressTopValue;
     }
+
+    if (positionLeft > MIN_LOCATION_X && positionLeft + PIN_MAIN_WIDTH < MAX_LOCATION_X) {
+      mapPinMain.style.left = positionLeft + 'px';
+    }
+
+    addressInput.value = addressLeftValue.toFixed() + ', ' + addressTopValue;
   };
 
-  var onMouseUp = function (evtUp) {
-    evtUp.preventDefault();
+  var onMouseUp = function (e) {
+    e.preventDefault();
 
     var address = addressInput.value;
 
@@ -153,12 +153,12 @@
     document.removeEventListener('mouseup', onMouseUp);
   };
 
-  mapPinMain.addEventListener('mousedown', function (evt) {
+  mapPinMain.addEventListener('mousedown', function (e) {
 
-    evt.preventDefault();
+    e.preventDefault();
 
-    startCoords.x = evt.clientX;
-    startCoords.y = evt.clientY;
+    startCoords.x = e.clientX;
+    startCoords.y = e.clientY;
 
     document.addEventListener('mousemove', onMouseMove);
     document.addEventListener('mouseup', onMouseUp);
