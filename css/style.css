@@ -1169,7 +1169,8 @@ fieldset {
 
 /* Оверлей */
 
-.success {
+.success,
+.unsuccess {
   position: fixed;
   top: 0;
   left: 0;
@@ -1190,7 +1191,8 @@ fieldset {
   background-color: rgba(0, 0, 0, 0.8);
 }
 
-.success__message {
+.success__message,
+.unsuccess__message {
   position: relative;
 
   color: #ffffff;
@@ -1198,7 +1200,8 @@ fieldset {
   font-weight: 700;
 }
 
-.success__message::before {
+.success__message::before,
+.unsuccess__message::before {
   content: "";
   position: absolute;
 
@@ -1215,4 +1218,14 @@ fieldset {
   -webkit-transform: translateX(-50%);
       -ms-transform: translateX(-50%);
           transform: translateX(-50%);
+}
+
+.unsuccess__message::before {
+  background-image: url("../img/frown-open.svg");
+}
+
+.unsuccess__message {
+  width: 900px;
+  margin-left: auto;
+  margin-right: auto;
 }
