@@ -2,7 +2,7 @@
 
 (function () {
   var addForm = document.querySelector('.ad-form');
-  var addFormReset = document.querySelector('.ad-form__reset');
+  var formReset = document.querySelector('.ad-form__reset');
   var mapFilters = document.querySelector('.map__filters');
   var type = document.querySelector('#type');
   var timeInSelect = document.querySelector('#timein');
@@ -10,9 +10,14 @@
   var roomNumberSelect = document.querySelector('#room_number');
   var capacitySelect = document.querySelector('#capacity');
 
-  addFormReset.addEventListener('click', function () {
-    mapFilters.reset();
+  window.addFormReset = function () {
     addForm.reset();
+    changeMinPrice(type.value);
+  };
+
+  formReset.addEventListener('click', function () {
+    mapFilters.reset();
+    window.addFormReset();
     window.setInactiveState();
   });
 

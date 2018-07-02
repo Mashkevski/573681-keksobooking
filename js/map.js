@@ -198,7 +198,7 @@
   });
 
   var onUpload = function () {
-    addForm.reset();
+    window.addFormReset();
     success.classList.remove('hidden');
     addressInput.value = getPinAddress(mapPinMain, PIN_MAIN_WIDTH, PIN_MAIN_DEFAULT_HEIGHT);
 
