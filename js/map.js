@@ -235,12 +235,16 @@
 
   addForm.addEventListener('submit', onFormSubmit);
 
+  var renderMapPinsDebounce = window.debounce(function () {
+    renderMapPins(filteredOffers);
+  });
+
   mapFilters.addEventListener('change', function () {
     filteredOffers = OFFERS.filter(function (offering) {
       return window.pinFilter(offering);
     });
     removeMapPins();
-    renderMapPins(filteredOffers);
+    renderMapPinsDebounce();
     closePopup();
   });
 
