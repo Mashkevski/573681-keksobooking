@@ -11,15 +11,19 @@
   var PIN_MAIN_WIDTH = 65;
   var MAP_PIN_DEFAULT_STYLE = 'left: 570px; top: 375px';
   var OFFERS = [];
+  var filteredOffers = [];
   var stateStatus = false;
   var map = document.querySelector('.map');
   var mapPinMain = document.querySelector('.map__pin--main');
-  var fieldsets = document.querySelectorAll('fieldset');
   var addressInput = document.querySelector('#address');
   var mapFiltersContainer = map.querySelector('map__filters-container');
-  var selects = map.querySelectorAll('select');
+  var mapFilters = document.querySelector('.map__filters');
   var mapPins = document.querySelector('.map__pins');
   var addForm = document.querySelector('.ad-form');
+  var selects = addForm.querySelectorAll('select');
+  var fieldsets = addForm.querySelectorAll('fieldset');
+  var mapInputFilter = document.querySelectorAll('.map__filter');
+  var housingFeatures = document.querySelector('#housing-features');
   var mapPinTemplate = document.querySelector('template')
     .content.querySelector('.map__pin');
   var fragment = document.createDocumentFragment();
@@ -56,9 +60,9 @@
   var openPopup = function (i) {
     var mapCardPopup = map.querySelector('.map__card');
     if (mapCardPopup) {
-      map.replaceChild(window.renderMapCard(OFFERS[i]), mapCardPopup);
+      map.replaceChild(window.renderMapCard(filteredOffers[i] || OFFERS[i]), mapCardPopup);
     } else {
-      map.insertBefore(window.renderMapCard(OFFERS[i]), mapFiltersContainer);
+      map.insertBefore(window.renderMapCard(filteredOffers[i] || OFFERS[i]), mapFiltersContainer);
     }
     var popupClose = map.querySelector('.popup__close');
     popupClose.addEventListener('click', function () {
@@ -73,13 +77,25 @@
     });
   };
 
-  var renderMapPins = function (offer) {
-    for (var i = 0; i < offer.length; i++) {
-      var pinElement = window.renderMapPin(offer[i], mapPinTemplate);
+  var renderMapPins = function (offers) {
+    for (var i = 0; i < offers.length; i++) {
+      var pinElement = window.renderMapPin(offers[i], mapPinTemplate);
       addPinClickHandler(pinElement, i);
       fragment.appendChild(pinElement);
     }
     mapPins.appendChild(fragment);
+  };
+
+  var disableForm = function (list) {
+    for (var i = 0; i < list.length; i++) {
+      list[i].disabled = true;
+    }
+  };
+
+  var enableForm = function (list) {
+    for (var i = 0; i < list.length; i++) {
+      list[i].disabled = false;
+    }
   };
 
   window.setInactiveState = function () {
@@ -87,12 +103,12 @@
     closePopup();
     map.classList.add('map--faded');
     addForm.classList.add('ad-form--disabled');
-    for (var fieldsetsIndex = 0; fieldsetsIndex < fieldsets.length; fieldsetsIndex++) {
-      fieldsets[fieldsetsIndex].disabled = true;
-    }
-    for (var selectsIndex = 0; selectsIndex < selects.length; selectsIndex++) {
-      selects[selectsIndex].disabled = true;
-    }
+
+    disableForm(fieldsets);
+    disableForm(selects);
+    disableForm(mapInputFilter);
+    housingFeatures.disable = true;
+
     mapPinMain.style = MAP_PIN_DEFAULT_STYLE;
     addressInput.value = getPinAddress(mapPinMain, PIN_MAIN_WIDTH, PIN_MAIN_DEFAULT_HEIGHT);
     stateStatus = false;
@@ -101,12 +117,10 @@
   var setActiveState = function () {
     map.classList.remove('map--faded');
     addForm.classList.remove('ad-form--disabled');
-    for (var fieldsetsIndex = 0; fieldsetsIndex < fieldsets.length; fieldsetsIndex++) {
-      fieldsets[fieldsetsIndex].disabled = false;
-    }
-    for (var selectsIndex = 0; selectsIndex < selects.length; selectsIndex++) {
-      selects[selectsIndex].disabled = false;
-    }
+
+    enableForm(fieldsets);
+    enableForm(selects);
+
     addressInput.value = getPinAddress(mapPinMain, PIN_MAIN_WIDTH, PIN_MAIN_HEIGHT);
   };
 
@@ -157,10 +171,12 @@
     document.removeEventListener('keydown', onSuccessMessageClose);
   };
 
-
   var onLoad = function (data) {
     OFFERS = data;
     renderMapPins(OFFERS);
+
+    enableForm(mapInputFilter);
+    housingFeatures.disabled = false;
   };
 
   var onError = function (error) {
@@ -213,4 +229,13 @@
   };
 
   addForm.addEventListener('submit', onFormSubmit);
+
+  mapFilters.addEventListener('change', function () {
+    filteredOffers = OFFERS.filter(function (offering) {
+      return window.pinFilter(offering);
+    });
+    removeMapPins();
+    renderMapPins(filteredOffers);
+  });
+
 })();
