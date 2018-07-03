@@ -3,8 +3,8 @@
 (function () {
   var PRICE_LEVEL = ['low', 'middle', 'high'];
   var Price = {
-    low: 10000,
-    high: 50000
+    LOW: 10000,
+    HIGH: 50000
   };
 
   var housingType = document.querySelector('#housing-type');
