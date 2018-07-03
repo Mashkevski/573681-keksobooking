@@ -5,7 +5,6 @@
 
   window.renderMapPin = function (obj, template) {
     var mapPinElement = template.cloneNode(true);
-    mapPinElement.id = obj.id;
     mapPinElement.style.left = obj.location.x - PIN_WIDTH / 2 + 'px';
     mapPinElement.style.top = obj.location.y - PIN_HEIGHT + 'px';
     mapPinElement.querySelector('img').src = obj.author.avatar;
