@@ -1,13 +1,13 @@
 'use strict';
 
 (function () {
+  var ROOM_NAMES = ['комната', 'комнаты', 'комнат'];
   var typeListMap = {
     'palace': 'Дворец',
     'flat': 'Квартира',
     'house': 'Дом',
     'bungalo': 'Бунгало'
   };
-  var ROOM_NAMES = ['комната', 'комнаты', 'комнат'];
 
   var mapCardTemplate = document.querySelector('template')
     .content.querySelector('.map__card');
