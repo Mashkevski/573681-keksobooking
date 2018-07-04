@@ -1,7 +1,14 @@
 'use strict';
 
 (function () {
+  var typeListMap = {
+    'palace': 'Дворец',
+    'flat': 'Квартира',
+    'house': 'Дом',
+    'bungalo': 'Бунгало'
+  };
   var ROOM_NAMES = ['комната', 'комнаты', 'комнат'];
+
   var mapCardTemplate = document.querySelector('template')
     .content.querySelector('.map__card');
   var photoListFragment = document.createDocumentFragment();
@@ -25,21 +32,6 @@
       featureListFragment.appendChild(li);
     }
     return featureListFragment;
-  };
-
-  var convertOfferType = function (kind) {
-    var offerType = '';
-    switch (kind) {
-      case 'palace': offerType = 'Дворец';
-        break;
-      case 'flat': offerType = 'Квартира';
-        break;
-      case 'house': offerType = 'Дом';
-        break;
-      case 'bungalo': offerType = 'Бунгало';
-        break;
-    }
-    return offerType;
   };
 
   var getPluralName = function (roomNumber) {
@@ -106,7 +98,7 @@
     }
 
     if (obj.offer.type) {
-      type.textContent = convertOfferType(obj.offer.type);
+      type.textContent = typeListMap[obj.offer.type];
     } else {
       type.classList.add('hidden');
     }
